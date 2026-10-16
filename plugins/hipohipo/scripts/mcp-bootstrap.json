@@ -1,0 +1,52 @@
+{
+  "protocolVersions": [
+    "2026-07-28",
+    "2025-11-25",
+    "2025-06-18",
+    "2025-03-26",
+    "2024-11-05",
+    "2024-10-07"
+  ],
+  "capabilities": {
+    "tools": {
+      "listChanged": true
+    },
+    "resources": {
+      "subscribe": true,
+      "listChanged": false
+    }
+  },
+  "instructions": "When business tools are available, use them directly without checking auth.status first. After login auth.status is hidden from the tool catalog; it is available before login for incomplete login or authorization problems only. Do not poll authorization. Use auth.login when authorization is needed. The user completes login in the browser; do not repeat failed login attempts without a requested retry. Search and upload require valid authorization and permissions. Hipo selects the destination from the current grant. Hooks handle automatic conversation capture; do not reconstruct history with memory.write. Local collection can continue before login and after logout; disable Hooks to stop collection. Independently authorized HTTP MCP connections use a separate login flow. Other Hipohipo plugins on the same OS profile may share the system-stored grant. If the client supports receipt subscriptions, use resources/subscribe on legacy connections or subscriptions/listen on modern connections for an authorized receipt URI, and reread it after notifications/resources/updated; an invalidation is not evidence of successful completion or automatic Agent continuation. Hook capture acknowledgements are internal submission IDs, not MCP operation receipts. Before reading or parsing a supplied document, derive its filename from the supplied reference and call document_offer with filename metadata only. Do not open or read its contents first. Use library.list for existing destinations. Recommend an existing folder using filenames and task context only with recommendedFolderRef, or omit it for Library. The bridge asks one question at a time and handles file selection and Other input; wait for the final confirmed outcome, not an intermediate choice. Document confirmation currently uses native form elicitation only; MCP Apps are temporarily disabled. On unavailable or skipped, continue the original task without uploading. On confirmed, validate offerId, revision and candidate mappings, then read and upload only selected revisions using existing source.create with folderRef as folderId; check source.get_status. Retain Source and operation IDs so repeated confirmation resumes the existing operation. Also proactively offer completed generated documents, excluding drafts. Never poll for confirmation or substitute conversational text for native confirmation. Follow the bundled document-capture Skill. Hipohipo's local runtime is being prepared. Call runtime_prepare or runtime_status; each waits up to 30 seconds and reports readiness. Preparation continues after a bounded wait. While this MCP connection stays open, failed preparation retries automatically after three minutes. Calls reuse the active download and respect the shared retry cooldown. Once ready, refresh tools/list and use the normal Hipohipo tools. MCP connectivity does not establish capture readiness or complete capture of earlier turns.",
+  "tools": [
+    {
+      "name": "runtime_prepare",
+      "description": "Prepare or recover the Hipohipo local runtime. Reuse an active download, respect the three-minute failure cooldown, and wait up to 30 seconds. Preparation continues after this wait; failures retry automatically while MCP stays connected. Once ready, refresh tools/list without reconnecting MCP.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "runtime_status",
+      "description": "Check Hipohipo runtime readiness. Start preparation if eligible, reuse an active download, and wait up to 30 seconds. Report preparing, ready or failed without closing MCP. Failed preparation retries automatically after three minutes while connected. Once ready, refresh tools/list.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    }
+  ]
+}

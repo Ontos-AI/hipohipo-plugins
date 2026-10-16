@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 2,
+  "version": "0.6.16",
+  "sourceCommit": "c2881d998998c936b3fae589a8b49c8af177bc12",
+  "sourceRepository": "Ontos-AI/hipo",
+  "platforms": [
+    "macos-arm64",
+    "linux-amd64",
+    "linux-arm64",
+    "windows-amd64"
+  ]
+}

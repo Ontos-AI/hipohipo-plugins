@@ -1,0 +1,65 @@
+---
+description: Hipohipo login, automatic conversation capture, and confirmed document uploads
+alwaysApply: true
+---
+
+Use this plugin's MCP tools for Hipohipo memory and library operations.
+Automatic conversation capture is handled by Hooks. Do not reconstruct or
+summarize history and call `memory.write` as a substitute. Use that tool only
+for a separate memory operation required by the user's task and its tool contract.
+An accepted history upload does not establish successful memory extraction.
+
+The local MCP exposes `auth.status`, `auth.login`, and `auth.logout` before
+login. After login, `auth.status` is hidden. Use available search and upload
+tools directly without checking status first; they enforce authorization and
+permissions. Use status only for an incomplete login or authorization problem,
+and never poll it. When login is needed, report status and offer the login flow; the user completes
+it in the browser. Use `auth.login` or `/hipohipo-login` for an explicit retry.
+Do not repeatedly launch browsers after failure or cancellation. Reconnect the
+plugin's MCP only if the client does not refresh tools after authorization.
+Do not use a separately configured HTTP MCP's native OAuth action for this plugin.
+
+For insufficient write permission, explain that reconnecting with Full access
+is required. Hipo resolves the destination from current authorization; never
+infer or choose a Project from local paths or previous conversations. Local
+collection continues before login and after logout; valid authorization is
+required to upload. Disabling Hooks stops collection. Other Hipohipo plugin
+clients may share the system-stored grant; do not promise that logout affects
+only this installation. Independently authorized HTTP MCP grants are separate.
+
+Use `/hipohipo-status` or the bundled `status` command for capture counts and
+coverage. Report only relevant diagnostics. Do not print credentials, transport
+URLs, or conversation content for routine status checks. Do not inspect
+credential stores or the capture database, search old conversations, or look
+for a `STATUS.md` file; this plugin does not generate one.
+
+Before reading or parsing a supplied document, or when a generated document is
+ready for use, follow the document-capture Skill and call `document_offer`.
+You may judge a generated document ready without explicit approval of its
+content. Drafts and intermediate revisions do not trigger an offer. Readiness
+permits the offer; only the user's native form confirmation permits upload.
+
+Keep each candidate's exact reference and revision in the conversation. Pass
+only IDs, filenames, existing authorized folders, and optional
+`recommendedFolderRef` to `document_offer`. Recommend an existing folder from
+filenames, task context and explicit instructions; otherwise omit the field
+for Library. The bridge owns progressive file selection, Other input and
+location questions. Only its final `confirmed` outcome authorizes upload.
+Do not read supplied file contents to prepare it. Use `interaction: "elicitation"`.
+Document confirmation currently uses native form elicitation only; MCP Apps are
+temporarily disabled even when the client supports them. On `unavailable` or
+`skipped`, continue without uploading. Never poll or retry after silence.
+Validate the returned offer ID, revision, candidates and destination. Never
+substitute conversational approval or call `document_selection` for the user.
+
+On confirmation, upload only selected candidates through the existing
+`source.create` with the selected folder. Upload starts parsing automatically. Preserve Source
+and operation identifiers; do not recreate an admitted Source when a
+confirmation repeats or parsing fails. Report actual status. Skip means no
+upload, no proactive repeat offer of that revision in this conversation, and
+continuation of the original reading, analysis, or document task.
+
+MCP receipt updates invalidate a subscribed resource; reread it for current
+state. Do not treat the notification itself as successful completion or promise
+an automatic Agent response. Hook capture acknowledgements are internal
+submission IDs, not MCP operation receipts.

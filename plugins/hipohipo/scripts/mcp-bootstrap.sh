@@ -1,0 +1,296 @@
+# Cold-start MCP adapter. Sourced only after launch.sh validates runtime pins.
+# All protocol writes belong to the router. Pumps queue private frame files,
+# avoiding interleaving JSON messages larger than a pipe's atomic write limit.
+readMcpFields() {
+  parsedFields=$(LC_ALL=C awk -f "$scriptDirectory/mcp-json.awk" "$1")
+  { IFS= read -r frameValidity || :; IFS= read -r requestId || :; IFS= read -r methodName || :
+    IFS= read -r toolName || :; IFS= read -r protocolVersion || :; IFS= read -r progressToken || :
+    IFS= read -r cancelledId || :; IFS= read -r modernVersion || :; IFS= read -r responseOutcome || :
+    IFS= read -r rawParameters || :; IFS= read -r responseVersion || :; IFS= read -r canChangeTools || :
+    IFS= read -r canSubscribe || :; IFS= read -r canChangeResources || :; IFS= read -r argumentsValidity || :
+    IFS= read -r requestKey || :; IFS= read -r cancelledKey || :
+  } <<FIELDS
+$parsedFields
+FIELDS
+}
+
+writeMcpResult() {
+  resultValue=$2
+  if [ "${3:-}" = 2026-07-28 ]; then
+    resultValue="${resultValue%\}},\"resultType\":\"complete\",\"ttlMs\":0,\"cacheScope\":\"private\",\"_meta\":{\"io.modelcontextprotocol/serverInfo\":{\"name\":\"hipohipo-plugin\",\"version\":\"$runtimeVersion\"}}}"
+  fi
+  printf '{"jsonrpc":"2.0","id":%s,"result":%s}\n' "$1" "$resultValue"
+}
+
+writeMcpError() {
+  printf '{"jsonrpc":"2.0","id":%s,"error":{"code":%s,"message":"%s"}}\n' "$1" "$2" "$3"
+}
+
+queueMcpFrames() {
+  frameNumber=0
+  while IFS= read -r frame || [ -n "$frame" ]; do
+    frameNumber=$((frameNumber + 1))
+    framePath="$bootstrapDirectory/$1-$frameNumber.json"
+    [ "${#frame}" -le 32000000 ] || frame='invalid oversized frame'
+    printf '%s\n' "$frame" > "$framePath"
+    printf '%s%s\n' "${1%"${1#?}"}" "$framePath"
+  done
+  printf '%s\n' "$2"
+}
+
+stopMcpRuntime() {
+  exec 5>&-
+  if [ -n "$backendProcess" ]; then
+    # Let EOF release the child's runtime lease before escalating a stuck exit.
+    (sleep 2; kill "$backendProcess" 2>/dev/null || :; sleep 2; kill -KILL "$backendProcess" 2>/dev/null || :) 3>&- 4<&- &
+    shutdownGuard=$!
+    wait "$backendProcess" 2>/dev/null || :
+    kill "$shutdownGuard" 2>/dev/null || :
+    wait "$shutdownGuard" 2>/dev/null || :
+  fi
+  [ -z "$backendReader" ] || kill "$backendReader" 2>/dev/null || :
+  [ -z "$backendReader" ] || wait "$backendReader" 2>/dev/null || :
+  backendProcess=''; backendReader=''; backendState=stopped
+}
+
+failMcpRuntime() {
+  backendError=$1
+  backendRetryAt=$(( $(date +%s) + 180 ))
+  stopMcpRuntime
+  for forwardedPath in "$bootstrapDirectory"/forwarded-*; do
+    [ -f "$forwardedPath" ] || continue
+    writeMcpError "$(sed -n '1p' "$forwardedPath")" -32000 'Runtime stopped; the connection will retry automatically after three minutes'
+    rm -f "$forwardedPath"
+  done
+  writeDiagnostic mcp_runtime_failed failed "$backendError"
+  completeMcpWaits
+  printf '{"jsonrpc":"2.0","method":"notifications/tools/list_changed"}\n'
+}
+
+closeMcpBootstrap() {
+  stopMcpRuntime
+  kill "$inputReader" "$bootstrapClock" 2>/dev/null || :
+  wait "$inputReader" "$bootstrapClock" 2>/dev/null || :
+  exec 3>&- 4<&-
+  rm -rf "$bootstrapDirectory"
+}
+
+startMcpRuntime() {
+  [ "$backendState" = stopped ] && [ -z "$backendError" ] && [ -n "$initializationFrame" ] && isReady || return 0
+  rm -f "$bootstrapDirectory/runtime-input" "$bootstrapDirectory/runtime-output"
+  mkfifo "$bootstrapDirectory/runtime-input" "$bootstrapDirectory/runtime-output"
+  backendGeneration=$((backendGeneration + 1))
+  queueMcpFrames "R-$backendGeneration" "B$backendGeneration" < "$bootstrapDirectory/runtime-output" >&3 4<&- &
+  backendReader=$!
+  "$runtimePath" __runtime-run "$@" < "$bootstrapDirectory/runtime-input" > "$bootstrapDirectory/runtime-output" 3>&- 4<&- &
+  backendProcess=$!
+  exec 5> "$bootstrapDirectory/runtime-input"
+  printf '%s\n' "$initializationFrame" >&5
+  backendState=initializing
+  backendDeadline=$(( $(date +%s) + 10 ))
+  backendError=''
+  writeDiagnostic mcp_runtime_started started
+}
+
+sendMcpRuntimeFrame() {
+  if printf '%s\n' "$1" >&5 2>/dev/null; then return 0; fi
+  failMcpRuntime runtime_process_closed
+}
+
+completeMcpWaits() {
+  now=$(date +%s)
+  for pendingPath in "$bootstrapDirectory"/pending-*; do
+    [ -f "$pendingPath" ] || continue
+    { IFS= read -r pendingDeadline; IFS= read -r pendingId; IFS= read -r pendingToken
+      IFS= read -r pendingVersion; IFS= read -r pendingStarted; IFS= read -r pendingProgress
+      IFS= read -r pendingKey
+    } < "$pendingPath"
+    state=preparing; isError=false
+    if [ "$backendState" = ready ]; then state=ready
+    elif [ -n "$backendError" ]; then state=failed; isError=true
+    elif hasCooldown; then state=failed; isError=true
+    elif [ "$now" -lt "$pendingDeadline" ]; then
+      elapsed=$((now - pendingStarted))
+      if [ -n "$pendingToken" ] && [ "$elapsed" -gt "$pendingProgress" ]; then
+        printf '{"jsonrpc":"2.0","method":"notifications/progress","params":{"progressToken":%s,"progress":%s,"total":30,"message":"Preparing the Hipohipo runtime"}}\n' "$pendingToken" "$((now - pendingStarted))"
+        printf '%s\n%s\n%s\n%s\n%s\n%s\n%s\n' "$pendingDeadline" "$pendingId" "$pendingToken" "$pendingVersion" "$pendingStarted" "$elapsed" "$pendingKey" > "$pendingPath"
+      fi
+      continue
+    fi
+    status=$(printStatus)
+    status="${status%\}},\"state\":\"$state\",\"waitTimeoutSeconds\":30,\"retryIntervalSeconds\":180,\"backendRetryAtUnixSeconds\":$backendRetryAt,\"backendErrorCode\":\"$backendError\"}"
+    case "$state" in
+      ready) text='Runtime is ready. Refresh tools/list and continue without reconnecting MCP.' ;;
+      failed) text='Runtime preparation or startup failed. The live MCP connection retries automatically three minutes after failure. Calls share the same download and cooldown. Inspect the error and log path below.' ;;
+      *) text='Runtime is still preparing after this bounded wait. Preparation continues in the background. Retry runtime_status later; do not reconnect MCP.' ;;
+    esac
+    result=$(printf '{"content":[{"type":"text","text":"%s %s"}],"structuredContent":%s,"isError":%s}' "$text" "$(escapeJson "$status")" "$status" "$isError")
+    writeMcpResult "$pendingId" "$result" "$pendingVersion"
+    rm -f "$pendingPath"
+  done
+}
+
+serveMcpBootstrap() {
+  command -v awk >/dev/null 2>&1 || reportFailure dependency_missing 'The system AWK interpreter is unavailable'
+  mkdir -p "$configDirectory"
+  bootstrapDirectory=$(mktemp -d "$configDirectory/.mcp.XXXXXX")
+  backendProcess=''; backendReader=''; backendState=stopped; backendError=''
+  initializationFrame=''; initializationMethod=''; negotiatedVersion=''; hasInitialized=false; pendingNumber=0
+  backendGeneration=0; backendRetryAt=0; forwardedNumber=0
+  descriptor=$(tr -d '\n' < "$scriptDirectory/mcp-bootstrap.json")
+  descriptorFields=$(printf '%s\n' "$descriptor" | LC_ALL=C HIPO_BOOTSTRAP_JSON_MODE=descriptor awk -f "$scriptDirectory/mcp-json.awk")
+  { IFS= read -r bootstrapTools; IFS= read -r bootstrapCapabilities; IFS= read -r bootstrapInstructions; IFS= read -r bootstrapVersions; } <<FIELDS
+$descriptorFields
+FIELDS
+  mkfifo "$bootstrapDirectory/events"
+  exec 3<> "$bootstrapDirectory/events" 4<&0
+  queueMcpFrames C E <&4 >&3 &
+  inputReader=$!
+  (while :; do sleep 1; printf 'T\n'; done) >&3 4<&- &
+  bootstrapClock=$!
+  trap closeMcpBootstrap 0
+  trap 'exit 130' INT
+  trap 'exit 143' TERM
+  trap '' PIPE
+  writeDiagnostic mcp_bootstrap_started success
+  while IFS= read -r eventFrame <&3; do
+    eventType=${eventFrame%"${eventFrame#?}"}
+    framePath=${eventFrame#?}
+    case "$eventType" in
+      E) return 0 ;;
+      B)
+        if [ "$framePath" = "$backendGeneration" ] && [ "$backendState" != stopped ]; then
+          failMcpRuntime runtime_process_closed
+        fi
+        continue ;;
+      T)
+        if [ "$backendState" = initializing ] && [ "$(date +%s)" -ge "$backendDeadline" ]; then
+          failMcpRuntime runtime_initialize_timeout
+        fi
+        if [ -n "$backendError" ] && [ "$(date +%s)" -ge "$backendRetryAt" ]; then backendError=''; fi
+        if [ -z "$backendError" ] && [ "$backendState" = stopped ]; then
+          requestPreparation || :
+          startMcpRuntime "$@"
+        fi
+        completeMcpWaits
+        continue ;;
+      C|R) ;;
+      *) continue ;;
+    esac
+    if [ "$eventType" = R ]; then
+      case "$framePath" in "$bootstrapDirectory/R-$backendGeneration-"*) ;; *) rm -f "$framePath"; continue ;; esac
+    fi
+    readMcpFields "$framePath"
+    frame=$(cat "$framePath")
+    rm -f "$framePath"
+    if [ "$frameValidity" != valid ]; then
+      if [ "$eventType" = R ]; then failMcpRuntime runtime_invalid_response
+      elif [ "$frameValidity" = invalid-json ]; then writeMcpError null -32700 'Invalid JSON'
+      else writeMcpError null -32600 'Invalid JSON-RPC frame'; fi
+      continue
+    fi
+    if [ "$eventType" = R ]; then
+      if [ "$backendState" = initializing ] && [ "$requestId" = '"hipohipo.bootstrap.initialize"' ] && [ -z "$methodName" ]; then
+        if [ "$responseOutcome" = error ]; then
+          failMcpRuntime runtime_initialize_failed
+        elif [ "$canChangeTools" != true ] || [ "$canSubscribe" != true ] || [ "$canChangeResources" != false ] || { [ "$initializationMethod" = initialize ] && [ "$responseVersion" != "$negotiatedVersion" ]; }; then
+          failMcpRuntime runtime_protocol_mismatch
+        else
+          backendState=ready
+          [ "$hasInitialized" != true ] || sendMcpRuntimeFrame '{"jsonrpc":"2.0","method":"notifications/initialized"}'
+          printf '{"jsonrpc":"2.0","method":"notifications/tools/list_changed"}\n'
+          writeDiagnostic mcp_runtime_ready success
+        fi
+        completeMcpWaits
+      else
+        if [ -z "$methodName" ]; then
+          for forwardedPath in "$bootstrapDirectory"/forwarded-*; do
+            [ -f "$forwardedPath" ] || continue
+            [ "$(sed -n '2p' "$forwardedPath")" != "$requestKey" ] || rm -f "$forwardedPath"
+          done
+        fi
+        printf '%s\n' "$frame"
+      fi
+      continue
+    fi
+    if [ -n "$modernVersion" ] && [ "$modernVersion" != 2026-07-28 ]; then writeMcpError "$requestId" -32022 'Unsupported protocol version'; continue; fi
+    # Modern requests carry their own version and need no legacy handshake.
+    if [ "$modernVersion" = 2026-07-28 ] && [ -z "$initializationFrame" ]; then
+      initializationMethod=server/discover
+      initializationFrame='{"jsonrpc":"2.0","id":"hipohipo.bootstrap.initialize","method":"server/discover","params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28"}}}'
+    fi
+    case "$methodName" in
+      server/discover)
+        if [ -z "$initializationFrame" ]; then
+          initializationMethod=server/discover
+          initializationFrame=$(printf '{"jsonrpc":"2.0","id":"hipohipo.bootstrap.initialize","method":"server/discover","params":%s}' "$rawParameters")
+        fi
+        result=$(printf '{"supportedVersions":%s,"capabilities":%s,"instructions":%s}' "$bootstrapVersions" "$bootstrapCapabilities" "$bootstrapInstructions")
+        writeMcpResult "$requestId" "$result" 2026-07-28
+        startMcpRuntime "$@"
+        continue ;;
+      initialize)
+        if [ -n "$initializationFrame" ]; then writeMcpError "$requestId" -32600 'MCP is already initialized'; continue; fi
+        case "$protocolVersion" in 2025-11-25|2025-06-18|2025-03-26|2024-11-05|2024-10-07) ;; *) protocolVersion=2025-11-25 ;; esac
+        initializationMethod=initialize; negotiatedVersion=$protocolVersion
+        initializationFrame=$(printf '{"jsonrpc":"2.0","id":"hipohipo.bootstrap.initialize","method":"initialize","params":%s}' "$rawParameters")
+        result=$(printf '{"protocolVersion":"%s","capabilities":%s,"serverInfo":{"name":"hipohipo-plugin","version":"%s"},"instructions":%s}' "$protocolVersion" "$bootstrapCapabilities" "$runtimeVersion" "$bootstrapInstructions")
+        writeMcpResult "$requestId" "$result"
+        startMcpRuntime "$@"
+        continue ;;
+      notifications/initialized)
+        hasInitialized=true
+        [ "$backendState" != ready ] || sendMcpRuntimeFrame "$frame"
+        continue ;;
+      notifications/cancelled)
+        for pendingPath in "$bootstrapDirectory"/pending-*; do
+          [ -f "$pendingPath" ] || continue
+          [ "$(sed -n '7p' "$pendingPath")" != "$cancelledKey" ] || rm -f "$pendingPath"
+        done
+        for forwardedPath in "$bootstrapDirectory"/forwarded-*; do
+          [ -f "$forwardedPath" ] || continue
+          [ "$(sed -n '2p' "$forwardedPath")" != "$cancelledKey" ] || rm -f "$forwardedPath"
+        done
+        [ "$backendState" != ready ] || sendMcpRuntimeFrame "$frame"
+        continue ;;
+      ping) writeMcpResult "$requestId" '{}' "$modernVersion"; continue ;;
+      tools/call)
+        case "$toolName" in
+          runtime_prepare|runtime_status)
+            pendingCount=0; hasDuplicate=false
+            for pendingPath in "$bootstrapDirectory"/pending-*; do
+              [ -f "$pendingPath" ] || continue
+              pendingCount=$((pendingCount + 1))
+              [ "$(sed -n '7p' "$pendingPath")" != "$requestKey" ] || hasDuplicate=true
+            done
+            if [ "$requestId" = null ] || [ "$hasDuplicate" = true ] || [ "$pendingCount" -ge 16 ]; then
+              writeMcpError "$requestId" -32600 'Invalid or duplicate preparation request'
+              continue
+            fi
+            if [ "$argumentsValidity" != valid ]; then writeMcpError "$requestId" -32602 'Preparation tools accept an empty arguments object'; continue; fi
+            requestPreparation || :
+            [ -n "$backendError" ] || startMcpRuntime "$@"
+            pendingNumber=$((pendingNumber + 1))
+            now=$(date +%s)
+            printf '%s\n%s\n%s\n%s\n%s\n%s\n%s\n' "$((now + 30))" "$requestId" "$progressToken" "$modernVersion" "$now" -1 "$requestKey" > "$bootstrapDirectory/pending-$pendingNumber"
+            completeMcpWaits
+            continue ;;
+        esac ;;
+    esac
+    if [ "$backendState" = ready ]; then
+      if [ -n "$methodName" ] && [ "$requestId" != null ]; then
+        forwardedNumber=$((forwardedNumber + 1))
+        printf '%s\n%s\n' "$requestId" "$requestKey" > "$bootstrapDirectory/forwarded-$forwardedNumber"
+      fi
+      sendMcpRuntimeFrame "$frame"
+      continue
+    fi
+    [ "$requestId" != null ] || continue
+    case "$methodName" in
+      tools/list) writeMcpResult "$requestId" "{\"tools\":$bootstrapTools}" "$modernVersion" ;;
+      resources/list) writeMcpResult "$requestId" '{"resources":[]}' "$modernVersion" ;;
+      resources/templates/list) writeMcpResult "$requestId" '{"resourceTemplates":[]}' "$modernVersion" ;;
+      *) writeMcpError "$requestId" -32601 'Runtime is not ready; call runtime_prepare or runtime_status' ;;
+    esac
+  done
+}

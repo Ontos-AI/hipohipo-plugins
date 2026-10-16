@@ -1,0 +1,8 @@
+@modelcontextprotocol/client 2.1.0
+@modelcontextprotocol/core 2.2.0
+@modelcontextprotocol/ext-apps 2.0.3
+eventsource 3.0.7
+eventsource-parser 3.1.1
+jose 6.2.12
+pkce-challenge 5.0.1
+zod 4.5.4

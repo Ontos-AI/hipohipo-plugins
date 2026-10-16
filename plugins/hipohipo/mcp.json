@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "hipohipo": {
+      "command": "${CURSOR_PLUGIN_ROOT}/hipohipo",
+      "args": [
+        "mcp"
+      ],
+      "cwd": "${CURSOR_PLUGIN_ROOT}"
+    }
+  }
+}

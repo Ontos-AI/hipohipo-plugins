@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "hipohipo": {
+      "command": "${CLAUDE_PLUGIN_ROOT}/hipohipo",
+      "args": [
+        "mcp",
+        "--state-dir",
+        "${CLAUDE_PLUGIN_DATA}"
+      ]
+    }
+  }
+}

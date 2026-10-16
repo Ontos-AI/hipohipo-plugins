@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": "\"${CURSOR_PLUGIN_ROOT}/scripts/run.cmd\" hook --event sessionStart",
+        "timeout": 5
+      }
+    ],
+    "beforeSubmitPrompt": [
+      {
+        "command": "\"${CURSOR_PLUGIN_ROOT}/scripts/run.cmd\" hook --event beforeSubmitPrompt",
+        "timeout": 5
+      }
+    ],
+    "afterAgentResponse": [
+      {
+        "command": "\"${CURSOR_PLUGIN_ROOT}/scripts/run.cmd\" hook --event afterAgentResponse",
+        "timeout": 5
+      }
+    ],
+    "stop": [
+      {
+        "command": "\"${CURSOR_PLUGIN_ROOT}/scripts/run.cmd\" hook --event stop",
+        "timeout": 5
+      }
+    ],
+    "sessionEnd": [
+      {
+        "command": "\"${CURSOR_PLUGIN_ROOT}/scripts/run.cmd\" hook --event sessionEnd",
+        "timeout": 5
+      }
+    ]
+  }
+}
