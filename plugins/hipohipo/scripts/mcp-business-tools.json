@@ -1,0 +1,325 @@
+{
+  "schemaVersion": 1,
+  "tools": [
+    {
+      "name": "library.search",
+      "description": "Search ready Sources in the authorized Project Library.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "cursor": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "library.list",
+      "description": "List parsed documents and all folders, including empty folders, in the authorized Project. Follow nextCursor to complete the listing. Does not consume Recall.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "cursor": {
+            "type": "string"
+          },
+          "isBackground": {
+            "type": "boolean",
+            "description": "Use true for a passive companion read during background document saving, without login or preparation."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "source.get_overview",
+      "description": "Read an existing document summary and paginated section outline from its stored parsed snapshot. When resultZipUrl is present, download and extract the original Knowhere result ZIP for local file reading. Use the returned sectionPath with source.read. Does not consume Recall.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "sourceRef": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "cursor": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sourceRef"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "source.read",
+      "description": "Read a section and its descendants from the stored parsed snapshot, including tables and image descriptions and links. Use the exact sectionPath from source.get_overview and follow nextCursor. Does not consume Recall.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "sourceRef": {
+            "type": "string"
+          },
+          "sectionPath": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "cursor": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sourceRef",
+          "sectionPath"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "library.read",
+      "description": "Read bounded evidence for a library citation.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "citationRef": {
+            "type": "string"
+          },
+          "cursor": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "citationRef"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "memory.search",
+      "description": "Search Hipo for relevant durable memories from earlier conversations. Use when the answer may depend on the user's previously stated preferences, working constraints, decisions, commitments, or corrections. Search with a specific topic or question. Use library.search for document content. Results contain matching memory text and topic labels when available. To continue, pass the returned nextCursor as cursor with the same query; stop when nextCursor is absent. Each new search consumes Recall; continuation pages do not.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "cursor": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "source.get_status",
+      "description": "Read current Source availability. To wait for parsing, use waitSeconds: 30 and repeat this same call while canContinueWaiting is true. A wait expiry ends only this call, not parsing. Continue until ready, confirmed failure, the original operation deadline, or user interruption; parsing can take more than ten minutes. Do not resubmit the Source, alternate immediate checks, or use shell sleeps. Omit waitSeconds or use zero for an immediate status read. Does not consume Recall.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "sourceRef": {
+            "type": "string"
+          },
+          "isBackground": {
+            "type": "boolean",
+            "description": "Use true for a passive companion read during background document saving, without login or preparation."
+          },
+          "waitSeconds": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 30
+          }
+        },
+        "required": [
+          "sourceRef"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "source.create",
+      "description": "Create a source and start parsing, or return a direct-upload permit that starts parsing automatically after upload. Omit idempotencyKey for a new request; Hipo generates one. Reuse an explicit key only when retrying the same request.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "folderId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Existing folder in this Project. Omit or use null for the root."
+          },
+          "fileUrl": {
+            "type": "string",
+            "description": "External URL. Caller size, sha256, and mediaType are ignored for this path."
+          },
+          "content": {
+            "type": "string",
+            "description": "Base64-encoded inline content up to 5 MB."
+          },
+          "filename": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "mediaType": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "description": "Optional client key. Omit for a new request; reuse only to retry the same request."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "memory.write",
+      "description": "Capture conversation excerpts to extract durable memories in Hipo. Use for reusable information the user explicitly states or confirms, such as preferences, working constraints, evaluation criteria, decisions, commitments, personal details, or corrections that should guide future work. Skip one-off questions or task instructions, document or retrieved facts, small talk, and unendorsed assistant claims. Do not infer a lasting preference from the topic of a question.\n\nSubmit the relevant user statements available in your context as userText, preserving their original wording and language. Include assistantText when needed for context. Do not invent user statements or replace them with inferred facts. Hipo determines what to retain and may retain nothing.\n\nOmit sessionRef to start a new conversation; reuse the returned sessionRef for later captures in that conversation. Use a new idempotencyKey for each new capture. Retry with the original key and arguments, including whether sessionRef was omitted.\n\nProcessing is asynchronous and returns a receipt. A queued or running status means processing is pending. Use memory.get_status with the returned receiptId when confirmation is needed. Only report the memory as saved when status is succeeded.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "turns": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "properties": {
+                "userText": {
+                  "type": "string"
+                },
+                "assistantText": {
+                  "type": "string"
+                },
+                "sourceRefs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "userText"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "description": "Use a new key for each new capture. Retry with the original key and arguments, including whether sessionRef was omitted."
+          },
+          "sessionRef": {
+            "type": "string",
+            "pattern": "^memory_session_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "description": "Hipo session reference returned by an earlier capture in this conversation. Reuse it for later captures; omit it for a new conversation."
+          }
+        },
+        "required": [
+          "turns",
+          "idempotencyKey"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "memory.get_status",
+      "description": "Check the status of a memory capture.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "receiptId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "receiptId"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "source.create_background",
+      "description": "Save a supplied document or completed document deliverable to the authorized Project in the background. Requires independent background-upload authorization. Uses the same inputs, parsing, and idempotency as source.create. For safe retries, generate and retain a client idempotencyKey before the first attempt; reuse it only for the same immutable request.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "folderId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Existing folder in this Project. Omit or use null for the root."
+          },
+          "fileUrl": {
+            "type": "string",
+            "description": "External URL. Caller size, sha256, and mediaType are ignored for this path."
+          },
+          "content": {
+            "type": "string",
+            "description": "Base64-encoded inline content up to 5 MB."
+          },
+          "filename": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "mediaType": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "description": "Optional client key. Generate and retain a key before the first attempt; reuse it only for the same immutable request."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    }
+  ]
+}

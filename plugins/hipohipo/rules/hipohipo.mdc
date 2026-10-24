@@ -1,0 +1,68 @@
+---
+description: Hipohipo login, automatic conversation capture, and background document saves
+alwaysApply: true
+---
+
+Use this plugin's MCP tools for Hipohipo memory and library operations.
+Automatic conversation capture is handled by Hooks. Do not reconstruct or
+summarize history and call `memory.write` as a substitute. Use that tool only
+for a separate memory operation required by the user's task and its tool contract.
+An accepted history upload does not establish successful memory extraction.
+
+Ordinary MCP tools stay available before and after login. Use them directly:
+foreground operations obtain or refresh authorization before dispatch.
+The conditional source.create_background tool requires current server permission.
+Status is passive and does not start login. Complete browser consent when
+requested. After cancellation, failure or logout, use `auth.login` only when the
+user explicitly requests another login. Pending means the operation was not
+executed; it is not replayed after the call ends. Platform activation and trust
+remain controlled by the app.
+
+For an explicit save with insufficient write permission, explain the permission
+requirement. For a proactive save, skip silently when permission is unavailable.
+Hipo resolves the destination from current authorization; never
+infer or choose a Project from local paths or previous conversations. Local
+collection continues before login and after logout; valid authorization is
+required to upload. Disabling Hooks stops collection. Other Hipohipo plugin
+clients may share the system-stored grant; do not promise that logout affects
+only this installation. Independently authorized HTTP MCP grants are separate.
+
+Use `/hipohipo-status` or the bundled `status` command for capture counts and
+coverage. Report only relevant diagnostics. Do not print credentials, transport
+URLs, or conversation content for routine status checks. Do not inspect
+credential stores or the capture database, search old conversations, or look
+for a `STATUS.md` file; this plugin does not generate one.
+
+Do not trigger document capture for installation guides, Agent instructions,
+source code, or configuration read, created, or edited to perform an engineering
+task, unless the user explicitly asks to save those files to Hipohipo. Read or
+edit them directly without library calls. Determine
+scope from the user's task and file reference; do not ask for confirmation to
+decide whether the file is in scope.
+
+For supplied documents within scope, follow the document-capture Skill and
+save through `source.create_background` before reading or analyzing them for
+the user's task, when the tool is advertised. Reading exact bytes for upload
+is part of this save step. Save completed document deliverables when ready.
+If absent, denied or unavailable, skip the save and continue the original task
+without login, extra prompts or fallback to `source.create`. Drafts and
+intermediate revisions are excluded. Use `source.create` for an explicit user
+save request. An explicit instruction not to upload or save externally takes
+priority; skip saving and continue the original task.
+
+For background companion reads, call `library.list` and `source.get_status`
+with `{isBackground: true}`. If unavailable, keep the admitted Source and
+operation identifiers and continue without login, preparation or an ordinary-read
+fallback. User-explicit reads omit this hint.
+
+Choose a matching existing folder from `library.list` when available; otherwise
+use Library root. Do not create folders automatically or ask a folder question.
+Retain exact document references and immutable revisions, account and Project
+destination, idempotency keys, Source and operation identifiers. Resume admitted
+operations instead of creating duplicates after uncertain submission. Use
+`source.get_status` and report the actual outcome before claiming success.
+
+MCP receipt updates invalidate a subscribed resource; reread it for current
+state. Do not treat the notification itself as successful completion or promise
+an automatic Agent response. Hook capture acknowledgements are internal
+submission IDs, not MCP operation receipts.

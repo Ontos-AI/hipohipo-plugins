@@ -1,0 +1,15 @@
+{
+  "name": "hipohipo",
+  "displayName": "Hipo Hipo",
+  "version": "0.6.63",
+  "icon": "./assets/icon.png",
+  "description": "Search Hipohipo memory and documents, capture conversations, and save documents you choose.",
+  "author": {
+    "name": "Hipohipo"
+  },
+  "hooks": "./hooks/claude-code.json",
+  "homepage": "https://hipohipo.ai",
+  "repository": "https://github.com/Ontos-AI/hipohipo-plugins",
+  "skills": "./skills/",
+  "commands": "./claude-code/commands"
+}

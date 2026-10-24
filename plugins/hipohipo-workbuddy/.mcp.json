@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "hipohipo": {
+      "command": "${CODEBUDDY_PLUGIN_ROOT}/hipohipo",
+      "args": [
+        "mcp",
+        "--host",
+        "workbuddy"
+      ]
+    }
+  }
+}

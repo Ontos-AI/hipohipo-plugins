@@ -1,0 +1,89 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CODEBUDDY_PLUGIN_ROOT}/scripts/run.cmd\" host-hook --host workbuddy --event SessionStart",
+            "timeout": 5,
+            "async": false
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CODEBUDDY_PLUGIN_ROOT}/scripts/run.cmd\" host-hook --host workbuddy --event UserPromptSubmit",
+            "timeout": 5,
+            "async": false
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CODEBUDDY_PLUGIN_ROOT}/scripts/run.cmd\" host-hook --host workbuddy --event Stop",
+            "timeout": 5,
+            "async": false
+          }
+        ]
+      }
+    ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CODEBUDDY_PLUGIN_ROOT}/scripts/run.cmd\" host-hook --host workbuddy --event StopFailure",
+            "timeout": 5,
+            "async": false
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CODEBUDDY_PLUGIN_ROOT}/scripts/run.cmd\" host-hook --host workbuddy --event SessionEnd",
+            "timeout": 5,
+            "async": false
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CODEBUDDY_PLUGIN_ROOT}/scripts/run.cmd\" host-hook --host workbuddy --event PreCompact",
+            "timeout": 5,
+            "async": false
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CODEBUDDY_PLUGIN_ROOT}/scripts/run.cmd\" host-hook --host workbuddy --event PreToolUse",
+            "timeout": 5,
+            "async": false
+          }
+        ]
+      }
+    ]
+  }
+}
