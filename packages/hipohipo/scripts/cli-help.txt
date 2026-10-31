@@ -1,0 +1,51 @@
+Hipohipo - memory and document capture for Cursor, Claude Code, Codex, and WorkBuddy
+
+Usage: hipohipo COMMAND [OPTIONS]
+
+Commands: login | login-device | logout | auth-status | headers | mcp | install |
+          worker | status | version | runtime-prepare | runtime-status | runtime-retry |
+          telemetry status|enable|disable | update [status|check|enable|disable|rollback] | share
+          update-notice status|enable|disable
+Host: host-hook --host claude-code|codex|workbuddy --event EVENT
+Development: receiver | export-receipts --output PATH
+Documents: document-transfer --host codex --operation-id ID --file ABSOLUTE_PATH
+           document-permission --host codex (trusted Codex PermissionRequest Hook)
+Document transfer sends the original bytes only for a retained, authorized operation.
+
+Options:
+  --help, -h                  Show help without preparing a runtime or instance
+  --host HOST                 Active client: cursor, workbuddy, codex or claude-code
+  --configuration-root PATH   Verified absolute configuration root of that client/profile
+  --state-dir PATH            Explicit state override; normally the plugin resolves its instance
+  --device, --headless        Use device authorization for login
+  --timeout-seconds 1..600     Total login timeout (default 600 seconds)
+  --event EVENT               Native Hook event
+  --output PATH               Exclusive receipt export path; export contains conversation text
+  --session-id ID             Current native Claude session for sharing
+  --operation-id ID           Retry an existing immutable share operation
+
+Examples (replace HOST with the verified active client):
+  hipohipo auth-status --host HOST
+  hipohipo status --host HOST
+  hipohipo login --host HOST
+auth-status checks authorization; status reports local capture diagnostics.
+Preserve the client's configuration environment. If its profile cannot be resolved,
+pass --configuration-root with the verified active configuration root; do not guess
+a default profile or state directory. Use the installed hipohipo.cmd entry on Windows.
+
+Cursor Local updates (installer-claimed archive installations only):
+  hipohipo update --host cursor
+  hipohipo update status --host cursor
+  hipohipo update check --host cursor
+  hipohipo update enable --host cursor
+  hipohipo update disable --host cursor
+  hipohipo update rollback --host cursor
+Marketplace and unknown installations are not managed. Rollback disables automatic
+updates. An installed package update may require normal host loading before MCP changes.
+
+Update notices (all hosts; preserve the same profile):
+  hipohipo update-notice status --host HOST
+  hipohipo update-notice disable --host HOST
+  hipohipo update-notice enable --host HOST
+Disabled notice response ignores server update notices, including cached notices.
+This preference is independent of the host and Cursor Local automatic-update settings.

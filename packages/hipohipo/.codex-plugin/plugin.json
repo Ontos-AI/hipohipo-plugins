@@ -1,0 +1,19 @@
+{
+  "name": "hipohipo",
+  "version": "0.6.106",
+  "interface": {
+    "displayName": "Hipo Hipo",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/icon.png"
+  },
+  "description": "Search Hipohipo memory and documents, capture conversations, and save documents you choose.",
+  "author": {
+    "name": "Hipohipo",
+    "url": "https://hipohipo.ai"
+  },
+  "hooks": "./hooks/codex.json",
+  "mcpServers": "./codex-mcp.json",
+  "homepage": "https://hipohipo.ai",
+  "repository": "https://github.com/Ontos-AI/hipohipo-plugins",
+  "skills": "./codex/skills/"
+}

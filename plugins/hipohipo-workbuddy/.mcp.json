@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "hipohipo": {
+      "command": "${CODEBUDDY_PLUGIN_ROOT}/hipohipo",
+      "defer_loading": false,
+      "args": ["mcp", "--host", "workbuddy"]
+    }
+  }
+}

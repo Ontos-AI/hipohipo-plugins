@@ -1,0 +1,453 @@
+{
+  "protocolVersions": [
+    "2026-07-28",
+    "2025-11-25",
+    "2025-06-18",
+    "2025-03-26",
+    "2024-11-05",
+    "2024-10-07"
+  ],
+  "capabilities": {
+    "tools": {
+      "listChanged": true
+    },
+    "resources": {
+      "subscribe": true,
+      "listChanged": false
+    }
+  },
+  "instructions": "Load document-capture in a separate tool call before opening the document to read/analyze it, or when writing plan/report/design files. Capture finished files before final delivery; skip repeated reads/edits. Exclude installation guides, Agent instructions, source code and configuration unless explicitly saving them. Use source.parse_background only if advertised; if absent, denied or unavailable, continue without login, extra prompts or fallback. Ordinary tool discovery is offline and stable before and after preparation, login, refresh and logout. source.parse_background is advertised only when existing authorization and current server policy allow background saves. Discovery never starts login or preparation. Use business tools directly; a foreground call to an ordinary tool prepares the runtime and obtains or refreshes authorization before execution. auth.status observes state without starting network requests or login. Complete browser consent when requested. After cancellation or terminal failure, use auth.login only when the user explicitly requests another login. A pending result means the original operation was not executed; a later call may continue after readiness. Search and upload require valid authorization and permissions. Hipo selects the destination from the current grant. Hooks handle automatic conversation capture; do not reconstruct history with memory.write. Local collection can continue before login and after logout; disable Hooks to stop collection. Independently authorized HTTP MCP connections use a separate login flow. Independent app/root instances use separate grants. Only legacy installations may retain a shared grant until migration. If the client supports receipt subscriptions, use resources/subscribe on legacy connections or subscriptions/listen on modern connections for an authorized receipt URI, and reread it after notifications/resources/updated; an invalidation is not evidence of successful completion or automatic Agent continuation. Hook capture acknowledgements are internal submission IDs, not MCP operation receipts. Do not trigger document capture for installation guides, Agent instructions, source code, or configuration read, created, or edited to perform an engineering task, unless the user explicitly asks to save those files to Hipohipo. Read or edit them directly without library calls. Determine scope from the user's task and file reference. Proactively try Hipohipo parsing only for supplied documents to read or analyze and completed document deliverables, excluding drafts and intermediate revisions. Parse supplied documents before their first reading and completed generated files before final delivery. Standalone plans, PoC plans, research reports and designs count even when stored in a code repository or awaiting approval or implementation. Do not create files from chat text just for capture. Remember capture attempts in the conversation: repeated reads, ongoing edits and later revisions must not trigger another background call. Resume existing pending operations; use source.create only when the user explicitly requests another save or parse. Treat a different complete path as a new candidate without rename tracking. If source.parse_background returns confirmation_required, no new Source or upload was created: ask whether to parse the current version again. Only explicit agreement permits source.create; otherwise continue without another attempt or repeated question. Never change metadata, paths or retry keys to bypass confirmation. An explicit instruction not to upload or save externally takes priority. Use source.parse_background only when advertised. If absent, denied or unavailable, continue the original task without login, extra prompts or fallback to source.create. For background companion reads, pass isBackground: true to library.list and source.get_status; if unavailable, continue without login or an ordinary-read fallback. User-explicit reads omit this hint. Choose a matching existing folder when available, otherwise Library root; never create a folder automatically. Preserve immutable file revision, account and Project destination, idempotency key, Source and operation identifiers; uncertain submission must not create a duplicate. Check source.get_status before reporting success. Follow the bundled document-capture Skill. Ordinary tools stay available before and after preparation and authorization. source.parse_background is a conditional exception: only the ready runtime advertises it after verifying the current connection permission; cold or unverified catalogs omit it. Status and discovery never start preparation or login. An operation starts or joins preparation, then login or refresh. Each preparation attempt has a cumulative 600-second deadline. A pending result means the operation was not executed and setup is incomplete. Follow nextAction and continue the same setup operation while pending; status checks do not advance setup. Use runtime_prepare for an explicit preparation retry after failure; use auth.login only for an explicitly requested login after cancellation, failure or logout. Platform activation and native trust remain controlled by the host.",
+  "tools": [
+    {
+      "name": "library.search",
+      "description": "Search ready Sources in the authorized Brain Library.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "cursor": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "library.list",
+      "description": "List parsed documents and all folders, including empty folders, in the authorized Brain. Follow nextCursor to complete the listing. Does not consume Recall.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "cursor": {
+            "type": "string"
+          },
+          "isBackground": {
+            "type": "boolean",
+            "description": "Use true for a passive companion read during background document saving, without login or preparation."
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "source.get_overview",
+      "description": "Read an existing document summary and paginated section outline from its stored parsed snapshot. When resultZipUrl is present, download and extract the original Knowhere result ZIP for local file reading. Use the returned sectionPath with source.read. Does not consume Recall.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "sourceRef": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "cursor": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sourceRef"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "source.read",
+      "description": "Read a section and its descendants from the stored parsed snapshot, including tables and image descriptions and links. Use the exact sectionPath from source.get_overview and follow nextCursor. Does not consume Recall.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "sourceRef": {
+            "type": "string"
+          },
+          "sectionPath": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "cursor": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sourceRef",
+          "sectionPath"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "library.read",
+      "description": "Read bounded evidence for a library citation.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "citationRef": {
+            "type": "string"
+          },
+          "cursor": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "citationRef"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "memory.search",
+      "description": "Search Hipo for relevant durable memories from earlier conversations. Use when the answer may depend on the user's previously stated preferences, working constraints, decisions, commitments, or corrections. Search with a specific topic or question. Use library.search for document content. Results contain matching memory text and topic labels when available. To continue, pass the returned nextCursor as cursor with the same query; stop when nextCursor is absent. Each new search consumes Recall; continuation pages do not.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "cursor": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "handoff.list",
+      "description": "List this account's recoverable private session handoffs. Each item includes handoffId, title, summary, host, sourceMode, createdAt, updatedAt, exportedAt, resumeCount, lastResumedAt, and totalMessages. Use with resume-session to match exactly one prior session; if more than one item fits or none fits, ask the user or skip. Does not consume Recall.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "handoff.read",
+      "description": "Read one recoverable private session handoff owned by this account. Pass handoffId from handoff.list. The first page (omit cursor) counts as a resume. Follow nextCursor for later pages. Returns the original transcript page plus title, summary, host, sourceMode, timestamps, and resumeCount. Does not consume Recall.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "handoffId": {
+            "type": "string"
+          },
+          "cursor": {
+            "type": "object",
+            "properties": {
+              "messageIndex": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "characterOffset": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "messageIndex",
+              "characterOffset"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "handoffId"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "source.get_status",
+      "description": "Read current Source availability. To wait for parsing, use waitSeconds: 30 and repeat this same call while canContinueWaiting is true. A wait expiry ends only this call, not parsing. Continue until ready, confirmed failure, the original operation deadline, or user interruption; parsing can take more than ten minutes. Do not resubmit the Source, alternate immediate checks, or use shell sleeps. Omit waitSeconds or use zero for an immediate status read. Does not consume Recall.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "sourceRef": {
+            "type": "string"
+          },
+          "isBackground": {
+            "type": "boolean",
+            "description": "Use true for a passive companion read during background document saving, without login or preparation."
+          },
+          "waitSeconds": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 30
+          }
+        },
+        "required": [
+          "sourceRef"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "source.create",
+      "description": "Create a Source when the user requests saving a file. Uses normal write permission and host review. For local files provide only localFilePath; the plugin derives filename, MIME, size, SHA-256 and retry identity. Run the complete returned transferCommand unchanged under normal host review; its operation binds the original file locally. Original bytes are sent for remote parsing and storage. For a remote URL provide fileUrl; for HTTP direct upload provide filename and PUT original bytes using the returned uploadUrl and uploadHeaders. Preserve returned Source, receipt and operation identifiers on retries. Optional title and folderId describe the destination.",
+      "inputSchema": {
+        "properties": {
+          "folderId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Existing folder in this Brain. Omit or use null for the root."
+          },
+          "fileUrl": {
+            "type": "string",
+            "description": "External URL. Caller size, sha256, and mediaType are ignored for this path."
+          },
+          "content": {
+            "type": "string",
+            "description": "Base64-encoded inline content up to 5 MB."
+          },
+          "filename": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "mediaType": {
+            "type": "string",
+            "description": "Legacy override; normally omit. Hipo infers MIME from filename."
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Legacy integrity assertion; normally omit. Hipo measures uploaded bytes."
+          },
+          "sha256": {
+            "type": "string",
+            "description": "Legacy integrity assertion; normally omit. Hipo computes the uploaded file hash."
+          },
+          "sessionId": {
+            "type": "string",
+            "description": "Capture session identity for the turn that triggered this Source. The plugin supplies the same session id Memory capture uses."
+          },
+          "sourceMessageId": {
+            "type": "string",
+            "description": "Capture turn identity for the message that triggered this Source. The plugin supplies the same id Memory capture uses."
+          },
+          "captureReason": {
+            "type": "string",
+            "enum": [
+              "supplied",
+              "generated"
+            ],
+            "description": "Why this file entered document-capture: supplied by the user, or generated by the Agent. Skill packs and memory-import files do not use this field."
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "description": "Legacy retry key; normally omit. Hipo generates it and returns the admitted identity."
+          },
+          "localFilePath": {
+            "type": "string",
+            "description": "Absolute original file path, used only inside this local plugin. For a local file this is the only required input; filename and all technical metadata are derived automatically. Never forwarded to the server."
+          }
+        },
+        "type": "object",
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "memory.write",
+      "description": "Capture conversation excerpts to extract durable memories in Hipo. Use for reusable information the user explicitly states or confirms, such as preferences, working constraints, evaluation criteria, decisions, commitments, personal details, or corrections that should guide future work. Skip one-off questions or task instructions, document or retrieved facts, small talk, and unendorsed assistant claims. Do not infer a lasting preference from the topic of a question.\n\nSubmit the relevant user statements available in your context as userText, preserving their original wording and language. Include assistantText when needed for context. Do not invent user statements or replace them with inferred facts. Hipo determines what to retain and may retain nothing.\n\nOmit sessionRef to start a new conversation; reuse the returned sessionRef for later captures in that conversation. Use a new idempotencyKey for each new capture. Retry with the original key and arguments, including whether sessionRef was omitted.\n\nProcessing is asynchronous and returns a receipt. A queued or running status means processing is pending. Use memory.get_status with the returned receiptId when confirmation is needed. Only report the memory as saved when status is succeeded.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "turns": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "properties": {
+                "userText": {
+                  "type": "string"
+                },
+                "assistantText": {
+                  "type": "string"
+                },
+                "sourceRefs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "userText"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "description": "Use a new key for each new capture. Retry with the original key and arguments, including whether sessionRef was omitted."
+          },
+          "sessionRef": {
+            "type": "string",
+            "pattern": "^memory_session_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "description": "Hipo session reference returned by an earlier capture in this conversation. Reuse it for later captures; omit it for a new conversation."
+          }
+        },
+        "required": [
+          "turns",
+          "idempotencyKey"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "memory.get_status",
+      "description": "Check the status of a memory capture.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "receiptId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "receiptId"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "auth.status",
+      "description": "Observe authorization without network access, refresh or browser login. Use business tools directly; their foreground call handles authorization.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "auth.login",
+      "description": "Start or join this plugin's setup when requested. Reuse valid authorization and pending consent; follow nextAction until setup finishes or fails. Use mode=device for SSH or another computer; auth.status exposes only the short-lived verification URL and user code while consent is pending. Existing independent authorization is preserved; switching accounts requires explicit logout. Tools remain available before and after login. Full access is needed for uploads.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "device"
+            ],
+            "description": "Use device to complete browser consent on another computer."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "auth.logout",
+      "description": "Delete this plugin's local credentials when the user requests logout, even if remote revocation fails. Local collection and pending history remain; upload stops. A legacy grant shared by other installations is preserved.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "runtime_prepare",
+      "description": "Explicitly start or join runtime preparation. A failed attempt requires this explicit retry. Preparation has a cumulative 600-second hard deadline; a bounded wait may return preparing without executing an operation.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "runtime_status",
+      "description": "Observe runtime readiness and any preparation failure without starting or restarting preparation.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    }
+  ]
+}

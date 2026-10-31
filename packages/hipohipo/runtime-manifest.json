@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "runtimeVersion": "0.6.106",
+  "artifacts": {
+    "macos-arm64": {
+      "url": "https://zwtuvd9pqclibkom.public.blob.vercel-storage.com/hipohipo/0.6.106/macos-arm64.gz",
+      "mirrorUrl": "https://ai-bid-server.oss-cn-beijing.aliyuncs.com/hipohipo/0.6.106/macos-arm64.gz",
+      "sha256": "f7b72a3ed7cdabf509389216445a19caa1e16c2c53d4c2072e73ab4e71c1c846",
+      "size": 8242743,
+      "executableSha256": "2b9383c3873fe81d0d27db20d6c62df11534f616568a1ee06a44d1f150f1bcad",
+      "executableSize": 21370914
+    },
+    "macos-amd64": {
+      "url": "https://zwtuvd9pqclibkom.public.blob.vercel-storage.com/hipohipo/0.6.106/macos-amd64.gz",
+      "mirrorUrl": "https://ai-bid-server.oss-cn-beijing.aliyuncs.com/hipohipo/0.6.106/macos-amd64.gz",
+      "sha256": "affdb4ea24c4292fdfdd253e69cbe809fcf96070f94410da4948f2dd217f1589",
+      "size": 8728503,
+      "executableSha256": "4dac7fe1ddbdd14dacbd309b275e58f9074c957cd1b1159c76df13d27095d10c",
+      "executableSize": 22625664
+    },
+    "linux-amd64": {
+      "url": "https://zwtuvd9pqclibkom.public.blob.vercel-storage.com/hipohipo/0.6.106/linux-amd64.gz",
+      "mirrorUrl": "https://ai-bid-server.oss-cn-beijing.aliyuncs.com/hipohipo/0.6.106/linux-amd64.gz",
+      "sha256": "a78bd3f96ee90db66c59b2c125e2a48e6899ec90bd25e68da32aa70631143231",
+      "size": 8761741,
+      "executableSha256": "7cceee0639213209c5fc2a92f01b71926d918cd26e20155d55961d4d9c879680",
+      "executableSize": 22573218
+    },
+    "linux-arm64": {
+      "url": "https://zwtuvd9pqclibkom.public.blob.vercel-storage.com/hipohipo/0.6.106/linux-arm64.gz",
+      "mirrorUrl": "https://ai-bid-server.oss-cn-beijing.aliyuncs.com/hipohipo/0.6.106/linux-arm64.gz",
+      "sha256": "4ef7bd4e75624b9f3dbe280a49bf6a80a561a7552aaa1dada2077e6b4ee7a565",
+      "size": 8080417,
+      "executableSha256": "3ce4744d894d503c94f2a1725b5286e11f195490f1d7dcadc3a541ff1a9a0428",
+      "executableSize": 21168290
+    },
+    "windows-amd64": {
+      "url": "https://zwtuvd9pqclibkom.public.blob.vercel-storage.com/hipohipo/0.6.106/windows-amd64.gz",
+      "mirrorUrl": "https://ai-bid-server.oss-cn-beijing.aliyuncs.com/hipohipo/0.6.106/windows-amd64.gz",
+      "sha256": "dd5f0ebf3610b88ce519b7b50895e96088567f5be9e8a79bf25f2dc737459fd5",
+      "size": 8702371,
+      "executableSha256": "91380b4508ca3da887c288b72fdc90d3c8c0bbaa4cb5e696dff052f3f155b39c",
+      "executableSize": 22579712
+    },
+    "windows-arm64": {
+      "url": "https://zwtuvd9pqclibkom.public.blob.vercel-storage.com/hipohipo/0.6.106/windows-arm64.gz",
+      "mirrorUrl": "https://ai-bid-server.oss-cn-beijing.aliyuncs.com/hipohipo/0.6.106/windows-arm64.gz",
+      "sha256": "d529b3c47df8f076837e56605650bd6515ed31b80010d2b692cac48d849f263b",
+      "size": 7930405,
+      "executableSha256": "8516fda7b074f88cd113cef568281b00385619cec971648e854bdbc50aa62bba",
+      "executableSize": 20894720
+    }
+  }
+}

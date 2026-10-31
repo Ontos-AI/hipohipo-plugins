@@ -1,0 +1,103 @@
+{
+  "hooks": {
+    "PermissionRequest": [
+      {
+        "matcher": "^(mcp__hipohipo__source_parse_background|Bash)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${PLUGIN_ROOT}/scripts/run.cmd\" document-permission --host codex --event PermissionRequest",
+            "statusMessage": "Verify existing Hipohipo background parsing permission and the bound original document transfer",
+            "timeout": 30,
+            "async": false
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${PLUGIN_ROOT}/scripts/run.cmd\" host-hook --host codex --event SessionStart",
+            "timeout": 5,
+            "async": false
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${PLUGIN_ROOT}/scripts/run.cmd\" host-hook --host codex --event UserPromptSubmit",
+            "timeout": 5,
+            "async": false
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${PLUGIN_ROOT}/scripts/run.cmd\" host-hook --host codex --event Stop",
+            "timeout": 20,
+            "async": false
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${PLUGIN_ROOT}/scripts/run.cmd\" host-hook --host codex --event PreCompact",
+            "timeout": 20,
+            "async": false
+          }
+        ]
+      }
+    ],
+    "Interrupt": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${PLUGIN_ROOT}/scripts/run.cmd\" host-hook --host codex --event Interrupt",
+            "timeout": 3,
+            "async": false
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${PLUGIN_ROOT}/scripts/run.cmd\" host-hook --host codex --event SessionEnd",
+            "timeout": 3,
+            "async": false
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${PLUGIN_ROOT}/scripts/run.cmd\" host-hook --host codex --event PreToolUse",
+            "timeout": 5,
+            "async": false
+          }
+        ]
+      }
+    ]
+  }
+}

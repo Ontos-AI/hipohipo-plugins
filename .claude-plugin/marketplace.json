@@ -1,0 +1,14 @@
+{
+  "name": "hipohipo-plugins",
+  "owner": {
+    "name": "Hipohipo"
+  },
+  "plugins": [
+    {
+      "name": "hipohipo",
+      "source": "./packages/hipohipo",
+      "description": "Search Hipohipo memory and documents, capture conversations, and save documents you choose.",
+      "version": "0.6.106"
+    }
+  ]
+}
