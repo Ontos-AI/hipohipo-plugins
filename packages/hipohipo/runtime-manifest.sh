@@ -1,0 +1,56 @@
+# Generated from runtime-manifest.json; do not edit.
+runtimeVersion=0.6.126
+manifestSize=2909
+manifestDigest=7f0ab47af8de3d556a0533477a3e7477028904e420f79a1ffea30965014fc4ec
+selectArtifact() {
+  case "$1" in
+    macos-arm64)
+      artifactMirrorUrl=https://ai-bid-server.oss-cn-beijing.aliyuncs.com/hipohipo/0.6.126/macos-arm64.gz
+      artifactUrl=https://zwtuvd9pqclibkom.public.blob.vercel-storage.com/hipohipo/0.6.126/macos-arm64.gz
+      compressedDigest=7859d8a11f0ecfbfd10845352ec3403b4a12089a5fd3617fbd03c895e5723188
+      compressedSize=8333524
+      executableDigest=fc4b5940f07c94b0228a11e2299fb5439276ab05c0cec71032058ab98e679f20
+      executableSize=21588930
+      ;;
+    macos-amd64)
+      artifactMirrorUrl=https://ai-bid-server.oss-cn-beijing.aliyuncs.com/hipohipo/0.6.126/macos-amd64.gz
+      artifactUrl=https://zwtuvd9pqclibkom.public.blob.vercel-storage.com/hipohipo/0.6.126/macos-amd64.gz
+      compressedDigest=6e11eb8efcb48df683608157d422e8146ea76b8039890c447e7e35e1834e03c7
+      compressedSize=8822754
+      executableDigest=6da82919817a2317f011f32d8c786e4a5acf8e587754388c76cac5224eb45b52
+      executableSize=22870752
+      ;;
+    linux-amd64)
+      artifactMirrorUrl=https://ai-bid-server.oss-cn-beijing.aliyuncs.com/hipohipo/0.6.126/linux-amd64.gz
+      artifactUrl=https://zwtuvd9pqclibkom.public.blob.vercel-storage.com/hipohipo/0.6.126/linux-amd64.gz
+      compressedDigest=926fc206841308e64f152a4cfc93b9744feda543ed53513ce2acabc574d04d1f
+      compressedSize=8852365
+      executableDigest=8c96314a72ad32972be64e1182298fa9f5e6270522f5a006f78e3f18f08ba7bb
+      executableSize=22810786
+      ;;
+    linux-arm64)
+      artifactMirrorUrl=https://ai-bid-server.oss-cn-beijing.aliyuncs.com/hipohipo/0.6.126/linux-arm64.gz
+      artifactUrl=https://zwtuvd9pqclibkom.public.blob.vercel-storage.com/hipohipo/0.6.126/linux-arm64.gz
+      compressedDigest=708fb1fa25045284fc5dff7ccebf85b00e05e7734d159c239bf012b7bdc33f79
+      compressedSize=8165637
+      executableDigest=ca74c9f704e361156ae0bcc566fb77be456549c52e17ad43497aa8d20f3d68d0
+      executableSize=21430434
+      ;;
+    windows-amd64)
+      artifactMirrorUrl=https://ai-bid-server.oss-cn-beijing.aliyuncs.com/hipohipo/0.6.126/windows-amd64.gz
+      artifactUrl=https://zwtuvd9pqclibkom.public.blob.vercel-storage.com/hipohipo/0.6.126/windows-amd64.gz
+      compressedDigest=22c63ebffdbd49b432073837b29f16923feaf959bfb568e140d8ef271e2ae302
+      compressedSize=8795474
+      executableDigest=72091d446557390f75a99da7efcd937003cb2a530b28fc09f62ce6c5989fd61a
+      executableSize=22821376
+      ;;
+    windows-arm64)
+      artifactMirrorUrl=https://ai-bid-server.oss-cn-beijing.aliyuncs.com/hipohipo/0.6.126/windows-arm64.gz
+      artifactUrl=https://zwtuvd9pqclibkom.public.blob.vercel-storage.com/hipohipo/0.6.126/windows-arm64.gz
+      compressedDigest=97dee6a0e40372bb2887a35684b0dae69717c264d3fb3226a9ec0148cb0ee48b
+      compressedSize=8016694
+      executableDigest=17de8f1f60d1b2a3866dfcab232e207b79ed66c975ec2f805c4047fa7c8064bd
+      executableSize=21103616
+      ;;
+  esac
+}

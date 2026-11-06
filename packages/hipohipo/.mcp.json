@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "hipohipo": {
+      "command": "${CLAUDE_PLUGIN_ROOT}/hipohipo",
+      "args": ["mcp", "--host", "claude-code"]
+    }
+  }
+}

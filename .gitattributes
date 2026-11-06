@@ -1,0 +1,3 @@
+# Native marketplace checkouts must preserve the verified archive payload.
+/packages/hipohipo/** -text
+/plugins/hipohipo-workbuddy/** -text
