@@ -1,0 +1,1000 @@
+{
+  "schemaVersion": 1,
+  "tools": [
+    {
+      "name": "library.search",
+      "description": "One classic retrieval over ready Sources in the authorized Brain Library. Does not consume Recall. For multi-step exploration use corpus.recall, corpus.grep, corpus.outline, corpus.read, corpus.query_table, and corpus.assets.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "cursor": {
+            "type": "string"
+          }
+        },
+        "required": ["query"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "corpus.recall",
+      "description": "Fuzzy ranked search over ready Sources in this Brain. Use for multi-step exploration; library.search remains one classic retrieval. Does not consume Recall. Pass sourceRef or document_id; omit scope to search every ready Source in this Brain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "sourceRef": {
+            "type": "string",
+            "description": "Ready Source in this Brain. Hipo maps this to document_id when scope is omitted."
+          },
+          "document_id": {
+            "type": "string",
+            "description": "Knowhere document id of a ready Source in this Brain when scope is omitted."
+          },
+          "scope": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "document_id": {
+                  "type": "string",
+                  "description": "Knowhere document id from a prior corpus result."
+                },
+                "sourceRef": {
+                  "type": "string",
+                  "description": "Ready Source in this Brain. Hipo maps this to document_id."
+                },
+                "section_path": {
+                  "type": "string",
+                  "description": "Restrict this document to this section and its subtree. Omit for the whole document."
+                }
+              },
+              "anyOf": [
+                {
+                  "required": ["document_id"]
+                },
+                {
+                  "required": ["sourceRef"]
+                }
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "description": "Omit to search every ready Source in this Brain. Hipo never searches the whole Knowhere namespace."
+          },
+          "chunk_types": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["text", "page", "image", "table"]
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": ["query"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "corpus.grep",
+      "description": "Exact string search over ready Sources in this Brain. Use for multi-step exploration; library.search remains one classic retrieval. Does not consume Recall. Pass sourceRef or document_id; omit scope to search every ready Source in this Brain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "pattern": {
+            "type": "string"
+          },
+          "patterns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sourceRef": {
+            "type": "string",
+            "description": "Ready Source in this Brain. Hipo maps this to document_id when scope is omitted."
+          },
+          "document_id": {
+            "type": "string",
+            "description": "Knowhere document id of a ready Source in this Brain when scope is omitted."
+          },
+          "scope": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "document_id": {
+                  "type": "string",
+                  "description": "Knowhere document id from a prior corpus result."
+                },
+                "sourceRef": {
+                  "type": "string",
+                  "description": "Ready Source in this Brain. Hipo maps this to document_id."
+                },
+                "section_path": {
+                  "type": "string",
+                  "description": "Restrict this document to this section and its subtree. Omit for the whole document."
+                }
+              },
+              "anyOf": [
+                {
+                  "required": ["document_id"]
+                },
+                {
+                  "required": ["sourceRef"]
+                }
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "description": "Omit to search every ready Source in this Brain. Hipo never searches the whole Knowhere namespace."
+          },
+          "chunk_types": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["text", "page", "image", "table"]
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "context_chars": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "anyOf": [
+          {
+            "required": ["pattern"]
+          },
+          {
+            "required": ["patterns"]
+          }
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "corpus.outline",
+      "description": "Map section titles and summaries for ready Sources in this Brain. Use for multi-step exploration; library.search remains one classic retrieval. Does not consume Recall. Pass sourceRef or document_id; omit scope to map every ready Source in this Brain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "sourceRef": {
+            "type": "string",
+            "description": "Ready Source in this Brain. Hipo maps this to document_id when scope is omitted."
+          },
+          "document_id": {
+            "type": "string",
+            "description": "Knowhere document id of a ready Source in this Brain when scope is omitted."
+          },
+          "scope": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "document_id": {
+                  "type": "string",
+                  "description": "Knowhere document id from a prior corpus result."
+                },
+                "sourceRef": {
+                  "type": "string",
+                  "description": "Ready Source in this Brain. Hipo maps this to document_id."
+                },
+                "section_path": {
+                  "type": "string",
+                  "description": "Restrict this document to this section and its subtree. Omit for the whole document."
+                }
+              },
+              "anyOf": [
+                {
+                  "required": ["document_id"]
+                },
+                {
+                  "required": ["sourceRef"]
+                }
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "description": "Omit to search every ready Source in this Brain. Hipo never searches the whole Knowhere namespace."
+          },
+          "depth": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "corpus.read",
+      "description": "Read live corpus sections or chunks in this Brain. This is not source.read, which reads the stored snapshot. Does not consume Recall. Pass sourceRef or document_id on each ref.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "refs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "properties": {
+                "document_id": {
+                  "type": "string"
+                },
+                "sourceRef": {
+                  "type": "string",
+                  "description": "Ready Source in this Brain. Hipo maps this to document_id."
+                },
+                "section_path": {
+                  "type": "string"
+                },
+                "chunk_id": {
+                  "type": "string"
+                }
+              },
+              "anyOf": [
+                {
+                  "required": ["document_id"]
+                },
+                {
+                  "required": ["sourceRef"]
+                }
+              ],
+              "additionalProperties": false
+            }
+          },
+          "mode": {
+            "type": "string",
+            "enum": ["self", "descendants"]
+          },
+          "include_assets": {
+            "type": "boolean"
+          }
+        },
+        "required": ["refs"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "corpus.query_table",
+      "description": "Run one read-only SELECT against a table chunk in this Brain. Use after corpus.read says the table is too large. Does not consume Recall. Pass sourceRef or document_id.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "sourceRef": {
+            "type": "string",
+            "description": "Ready Source owning the table chunk. Hipo maps this to document_id."
+          },
+          "document_id": {
+            "type": "string"
+          },
+          "chunk_id": {
+            "type": "string"
+          },
+          "sql": {
+            "type": "string"
+          }
+        },
+        "anyOf": [
+          {
+            "required": ["document_id", "chunk_id", "sql"]
+          },
+          {
+            "required": ["sourceRef", "chunk_id", "sql"]
+          }
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "corpus.assets",
+      "description": "Find image and table chunks in ready Sources in this Brain, or list sections that contain given asset chunk ids. Use for multi-step exploration; library.search remains one classic retrieval. Does not consume Recall. Pass sourceRef or document_id; omit scope to search every ready Source in this Brain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "sourceRef": {
+            "type": "string",
+            "description": "Ready Source in this Brain. Hipo maps this to document_id when scope is omitted."
+          },
+          "document_id": {
+            "type": "string",
+            "description": "Knowhere document id of a ready Source in this Brain when scope is omitted."
+          },
+          "scope": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "document_id": {
+                  "type": "string",
+                  "description": "Knowhere document id from a prior corpus result."
+                },
+                "sourceRef": {
+                  "type": "string",
+                  "description": "Ready Source in this Brain. Hipo maps this to document_id."
+                },
+                "section_path": {
+                  "type": "string",
+                  "description": "Restrict this document to this section and its subtree. Omit for the whole document."
+                }
+              },
+              "anyOf": [
+                {
+                  "required": ["document_id"]
+                },
+                {
+                  "required": ["sourceRef"]
+                }
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "description": "Omit to search every ready Source in this Brain. Hipo never searches the whole Knowhere namespace."
+          },
+          "type": {
+            "type": "string",
+            "enum": ["image", "table", "any"]
+          },
+          "query": {
+            "type": "string"
+          },
+          "host_of": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "library.list",
+      "description": "List parsed documents and all folders, including empty folders, in the authorized Brain. Follow nextCursor to complete the listing. Does not consume Recall.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "cursor": {
+            "type": "string"
+          },
+          "isBackground": {
+            "type": "boolean",
+            "description": "Use true for a passive companion read during background document saving, without login or preparation."
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "source.get_overview",
+      "description": "Read an existing document summary and paginated section outline from its stored parsed snapshot. When resultZipUrl is present, download and extract the original Knowhere result ZIP for local file reading. Use the returned sectionPath with source.read. Does not consume Recall.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "sourceRef": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "cursor": {
+            "type": "string"
+          }
+        },
+        "required": ["sourceRef"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "source.read",
+      "description": "Read a section and its descendants from the stored parsed snapshot, including tables and image descriptions and links. Use the exact sectionPath from source.get_overview and follow nextCursor. Does not consume Recall.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "sourceRef": {
+            "type": "string"
+          },
+          "sectionPath": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "cursor": {
+            "type": "string"
+          }
+        },
+        "required": ["sourceRef", "sectionPath"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "library.read",
+      "description": "Read bounded evidence for a library citation.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "citationRef": {
+            "type": "string"
+          },
+          "cursor": {
+            "type": "string"
+          }
+        },
+        "required": ["citationRef"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "memory.search",
+      "description": "Search Hipo for relevant durable memories from earlier conversations. Use when the answer may depend on the user's previously stated preferences, working constraints, decisions, commitments, or corrections. Search with a specific topic or question. This search does not run a server-side relevance judgment; it returns a fused list capped at 6 items per memory kind for the host to filter. Use library.search for document content. Results contain matching memory text and topic labels when available. To continue, pass the returned nextCursor as cursor with the same query; stop when nextCursor is absent. Does not consume Recall.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "cursor": {
+            "type": "string"
+          }
+        },
+        "required": ["query"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "handoff.list",
+      "description": "List this account's recoverable private session handoffs. Each item includes handoffId, title, summary, host, sourceMode, createdAt, updatedAt, exportedAt, resumeCount, lastResumedAt, totalMessages, and retentionDays. Use with resume-session to match exactly one prior session; if more than one item fits or none fits, ask the user or skip. Does not consume Recall.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "handoff.read",
+      "description": "Read one recoverable private session handoff owned by this account. Pass handoffId from handoff.list. The first page (omit cursor) counts as a resume. Follow nextCursor for later pages. Returns the original transcript page plus title, summary, host, sourceMode, timestamps, and resumeCount. Does not consume Recall.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "handoffId": {
+            "type": "string"
+          },
+          "cursor": {
+            "type": "object",
+            "properties": {
+              "messageIndex": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "characterOffset": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["messageIndex", "characterOffset"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["handoffId"],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "source.get_status",
+      "description": "Read current Source availability. To wait for parsing, use waitSeconds: 30 and repeat this same call while canContinueWaiting is true. A wait expiry ends only this call, not parsing. Continue until ready, confirmed failure, the original operation deadline, or user interruption; parsing can take more than ten minutes. Do not resubmit the Source, alternate immediate checks, or use shell sleeps. Omit waitSeconds or use zero for an immediate status read. Does not consume Recall.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "sourceRef": {
+            "type": "string"
+          },
+          "isBackground": {
+            "type": "boolean",
+            "description": "Use true for a passive companion read during background document saving, without login or preparation."
+          },
+          "waitSeconds": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 30
+          }
+        },
+        "required": ["sourceRef"],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "skill.list",
+      "description": "List committed Skill packs in this Brain. Matches name, description, originApp and scope. Does not read pack bytes.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string",
+            "enum": ["global", "project"]
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "skill.get",
+      "description": "Read one Skill pack's metadata and download URL.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "skillId": {
+            "type": "string"
+          }
+        },
+        "required": ["skillId"],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "skill.pull",
+      "description": "List active Skill packs in this Brain with download URLs and manifests for local write-back.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "scope": {
+            "type": "string",
+            "enum": ["global", "project"]
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "source.create",
+      "description": "Create a Source when the user requests saving a file. Uses normal write permission and host review. For local files provide only localFilePath; the plugin derives filename, MIME, size, SHA-256 and retry identity. Run the complete returned transferCommand unchanged under normal host review; its operation binds the original file locally. Original bytes are sent for remote parsing and storage. For a remote URL provide fileUrl; for HTTP direct upload provide filename and PUT original bytes using the returned uploadUrl and uploadHeaders. Preserve returned Source, receipt and operation identifiers on retries. Optional title and folderId describe the destination.",
+      "inputSchema": {
+        "properties": {
+          "folderId": {
+            "type": ["string", "null"],
+            "description": "Existing folder in this Brain. Omit or use null for the root."
+          },
+          "fileUrl": {
+            "type": "string",
+            "description": "External URL. Caller size, sha256, and mediaType are ignored for this path."
+          },
+          "content": {
+            "type": "string",
+            "description": "Base64-encoded inline content up to 5 MB."
+          },
+          "filename": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "mediaType": {
+            "type": "string",
+            "description": "Legacy override; normally omit. Hipo infers MIME from filename."
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Legacy integrity assertion; normally omit. Hipo measures uploaded bytes."
+          },
+          "sha256": {
+            "type": "string",
+            "description": "Legacy integrity assertion; normally omit. Hipo computes the uploaded file hash."
+          },
+          "sessionId": {
+            "type": "string",
+            "description": "Capture session identity for the turn that triggered this Source. The plugin supplies the same session id Memory capture uses."
+          },
+          "sourceMessageId": {
+            "type": "string",
+            "description": "Capture turn identity for the message that triggered this Source. The plugin supplies the same id Memory capture uses."
+          },
+          "captureReason": {
+            "type": "string",
+            "enum": ["supplied", "generated"],
+            "description": "Why this file entered document-capture: supplied by the user, or generated by the Agent. Skill packs and memory-import files do not use this field."
+          },
+          "localProject": {
+            "type": "object",
+            "description": "The local workspace this file was saved from. The plugin supplies it; Hipo files the Source in that workspace's folder unless folderId is given.",
+            "properties": {
+              "key": {
+                "type": "string",
+                "description": "SHA-256 of the workspace root path."
+              },
+              "label": {
+                "type": "string",
+                "description": "Short workspace name, used as the folder name."
+              }
+            },
+            "required": ["key", "label"],
+            "additionalProperties": false
+          },
+          "origin": {
+            "type": "object",
+            "description": "Where the file itself lives, without its name. The plugin supplies it for local files.",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": ["repo", "directory"]
+              },
+              "path": {
+                "type": "string",
+                "description": "Directory relative to the user's home."
+              }
+            },
+            "required": ["kind", "path"],
+            "additionalProperties": false
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "description": "Legacy retry key; normally omit. Hipo generates it and returns the admitted identity."
+          },
+          "localFilePath": {
+            "type": "string",
+            "description": "Absolute original file path, used only inside this local plugin. For a local file this is the only required input; filename and all technical metadata are derived automatically. Never forwarded to the server."
+          }
+        },
+        "type": "object",
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "source.assign_local_project",
+      "description": "File an existing Source under the local workspace it was saved from. The plugin calls it once to sort earlier saves; a Source already in a folder stays there.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "sourceRef": {
+            "type": "string"
+          },
+          "localProject": {
+            "type": "object",
+            "description": "The local workspace this file was saved from. The plugin supplies it; Hipo files the Source in that workspace's folder unless folderId is given.",
+            "properties": {
+              "key": {
+                "type": "string",
+                "description": "SHA-256 of the workspace root path."
+              },
+              "label": {
+                "type": "string",
+                "description": "Short workspace name, used as the folder name."
+              }
+            },
+            "required": ["key", "label"],
+            "additionalProperties": false
+          },
+          "origin": {
+            "type": "object",
+            "description": "Where the file itself lives, without its name. The plugin supplies it for local files.",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": ["repo", "directory"]
+              },
+              "path": {
+                "type": "string",
+                "description": "Directory relative to the user's home."
+              }
+            },
+            "required": ["kind", "path"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["sourceRef", "localProject"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "source.resume_upload",
+      "description": "Resume a background save whose original file was never sent. The plugin calls it automatically with the uploadId and sha256 it saved; it returns a new upload permit, or says the original is already stored or the Source was removed.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "uploadId": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{64}$"
+          }
+        },
+        "required": ["uploadId", "sha256"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "memory.write",
+      "description": "Capture one durable statement the user explicitly makes or confirms, such as a lasting preference, working constraint, decision, or correction. Use the shortest self-contained excerpt in the user's original wording and language. Skip one-time instructions, inferred preferences, assistant claims, document facts, and sensitive information. Hipo may retain nothing.\n\nProcessing is asynchronous. Use memory.get_status with the returned receiptId to check completion before reporting that a memory was saved. If a receipt is missing after an interrupted call, submitting again may create a separate capture.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "userText": {
+            "type": "string",
+            "minLength": 1,
+            "description": "A short excerpt in the user's own words."
+          }
+        },
+        "required": ["userText"],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "memory.get_status",
+      "description": "Check the status of a memory capture.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "receiptId": {
+            "type": "string"
+          }
+        },
+        "required": ["receiptId"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "skill.push",
+      "description": "Store an Agent Skill pack in this Brain Library without parsing. Provide filename, size, name, description, scope and originApp. PUT the tar+gzip bytes using the returned uploadUrl and uploadHeaders, then call skill.push again with the same identity and uploadId. Same contentHash for the same (scope, name) returns the existing skillId.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string",
+            "enum": ["global", "project"]
+          },
+          "originApp": {
+            "type": "string",
+            "enum": ["cursor", "claude-code", "codex", "workbuddy"]
+          },
+          "version": {
+            "type": "string"
+          },
+          "projectRef": {
+            "type": "object",
+            "properties": {
+              "remote": {
+                "type": ["string", "null"]
+              },
+              "workspacePath": {
+                "type": ["string", "null"]
+              },
+              "relativePath": {
+                "type": "string"
+              },
+              "symlinkTarget": {
+                "type": ["string", "null"]
+              }
+            },
+            "required": ["relativePath"],
+            "additionalProperties": false
+          },
+          "filename": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 5000000
+          },
+          "contentHash": {
+            "type": "string"
+          },
+          "uploadId": {
+            "type": "string"
+          },
+          "manifest": {
+            "type": "object"
+          }
+        },
+        "required": ["name", "description", "scope", "originApp", "filename", "size", "manifest"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "skill.delete",
+      "description": "Remove a Skill pack from this Brain Library. Does not delete local files.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "skillId": {
+            "type": "string"
+          }
+        },
+        "required": ["skillId"],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "source.parse_background",
+      "description": "Follow document-capture before the first reading of supplied documents and before delivering finished plan/report/design files. Skip drafts, repeated reads and ongoing edits. Saving a path again needs no question: Hipo keeps identical content once and replaces an earlier version of the same file. Requires existing independent background parsing permission; if unavailable or denied, continue the original task without a fallback. For local files provide only localFilePath; the plugin derives filename, MIME, size, SHA-256 and retry identity. Run the complete returned transferCommand unchanged under normal host review; its operation binds the original file locally. Original bytes are sent for remote parsing and storage. For a remote URL provide fileUrl; for HTTP direct upload provide filename and PUT original bytes using the returned uploadUrl and uploadHeaders. Preserve returned Source, receipt and operation identifiers on retries. Optional title and folderId describe the destination.",
+      "inputSchema": {
+        "properties": {
+          "folderId": {
+            "type": ["string", "null"],
+            "description": "Existing folder in this Brain. Omit or use null for the root."
+          },
+          "fileUrl": {
+            "type": "string",
+            "description": "External URL. Caller size, sha256, and mediaType are ignored for this path."
+          },
+          "content": {
+            "type": "string",
+            "description": "Base64-encoded inline content up to 5 MB."
+          },
+          "filename": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "mediaType": {
+            "type": "string",
+            "description": "Legacy override; normally omit. Hipo infers MIME from filename."
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Legacy integrity assertion; normally omit. Hipo measures uploaded bytes."
+          },
+          "sha256": {
+            "type": "string",
+            "description": "Legacy integrity assertion; normally omit. Hipo computes the uploaded file hash."
+          },
+          "sessionId": {
+            "type": "string",
+            "description": "Capture session identity for the turn that triggered this Source. The plugin supplies the same session id Memory capture uses."
+          },
+          "sourceMessageId": {
+            "type": "string",
+            "description": "Capture turn identity for the message that triggered this Source. The plugin supplies the same id Memory capture uses."
+          },
+          "captureReason": {
+            "type": "string",
+            "enum": ["supplied", "generated"],
+            "description": "Why this file entered document-capture: supplied by the user, or generated by the Agent. Skill packs and memory-import files do not use this field."
+          },
+          "localProject": {
+            "type": "object",
+            "description": "The local workspace this file was saved from. The plugin supplies it; Hipo files the Source in that workspace's folder unless folderId is given.",
+            "properties": {
+              "key": {
+                "type": "string",
+                "description": "SHA-256 of the workspace root path."
+              },
+              "label": {
+                "type": "string",
+                "description": "Short workspace name, used as the folder name."
+              }
+            },
+            "required": ["key", "label"],
+            "additionalProperties": false
+          },
+          "origin": {
+            "type": "object",
+            "description": "Where the file itself lives, without its name. The plugin supplies it for local files.",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": ["repo", "directory"]
+              },
+              "path": {
+                "type": "string",
+                "description": "Directory relative to the user's home."
+              }
+            },
+            "required": ["kind", "path"],
+            "additionalProperties": false
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "description": "Legacy retry key; normally omit. Hipo generates it and returns the admitted identity."
+          },
+          "localFilePath": {
+            "type": "string",
+            "description": "Absolute original file path, used only inside this local plugin. For a local file this is the only required input; filename and all technical metadata are derived automatically. Never forwarded to the server."
+          }
+        },
+        "type": "object",
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true
+      }
+    }
+  ]
+}

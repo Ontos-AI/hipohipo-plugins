@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": "\"${CURSOR_PLUGIN_ROOT}/scripts/run.cmd\" hook --host cursor --event sessionStart",
+        "timeout": 5
+      }
+    ],
+    "beforeSubmitPrompt": [
+      {
+        "command": "\"${CURSOR_PLUGIN_ROOT}/scripts/run.cmd\" hook --host cursor --event beforeSubmitPrompt",
+        "timeout": 30
+      }
+    ],
+    "afterAgentResponse": [
+      {
+        "command": "\"${CURSOR_PLUGIN_ROOT}/scripts/run.cmd\" hook --host cursor --event afterAgentResponse",
+        "timeout": 5
+      }
+    ],
+    "stop": [
+      {
+        "command": "\"${CURSOR_PLUGIN_ROOT}/scripts/run.cmd\" hook --host cursor --event stop",
+        "timeout": 5
+      }
+    ],
+    "sessionEnd": [
+      {
+        "command": "\"${CURSOR_PLUGIN_ROOT}/scripts/run.cmd\" hook --host cursor --event sessionEnd",
+        "timeout": 5
+      }
+    ],
+    "preToolUse": [
+      {
+        "command": "\"${CURSOR_PLUGIN_ROOT}/scripts/run.cmd\" document-permission --host cursor --event preToolUse",
+        "matcher": "Shell",
+        "timeout": 120
+      },
+      {
+        "command": "\"${CURSOR_PLUGIN_ROOT}/scripts/run.cmd\" document-permission --host cursor --event preToolUse",
+        "matcher": "MCP:source.parse_background",
+        "timeout": 120
+      }
+    ],
+    "beforeShellExecution": [
+      {
+        "command": "\"${CURSOR_PLUGIN_ROOT}/scripts/run.cmd\" document-permission --host cursor --event beforeShellExecution",
+        "matcher": "document-transfer",
+        "timeout": 120
+      }
+    ]
+  }
+}

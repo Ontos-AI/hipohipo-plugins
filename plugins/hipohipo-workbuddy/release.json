@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 2,
+  "version": "0.6.134",
+  "sourceCommit": "208ef6eefcbca4fa32536aeefd2d08428389523d",
+  "host": "workbuddy",
+  "platform": "universal",
+  "platforms": [
+    "macos-arm64",
+    "macos-amd64",
+    "linux-amd64",
+    "linux-arm64",
+    "windows-amd64",
+    "windows-arm64"
+  ]
+}

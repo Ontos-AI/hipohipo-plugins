@@ -1,0 +1,20 @@
+{
+  "name": "hipohipo-plugins",
+  "owner": {
+    "name": "Hipohipo"
+  },
+  "plugins": [
+    {
+      "name": "hipohipo",
+      "source": "./packages/hipohipo",
+      "description": "Search Hipohipo memory and documents, capture conversations, and save documents you choose.",
+      "version": "0.6.134"
+    },
+    {
+      "name": "hipohipo-web",
+      "version": "0.1.6",
+      "description": "Save selected preferences and final documents to your Hipo Brain.",
+      "source": "./packages/hipohipo-web"
+    }
+  ]
+}
