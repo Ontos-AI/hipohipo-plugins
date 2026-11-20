@@ -1,0 +1,47 @@
+Hipohipo - memory and document capture for Cursor, Claude Code, Codex, and WorkBuddy
+
+Usage: hipohipo COMMAND [OPTIONS]
+
+Commands: login | login-device | logout | auth-status | trust [status|apply] | headers | mcp |
+          worker | status | version | runtime-prepare | runtime-status | runtime-retry |
+          telemetry status|enable|disable | share
+          update-notice status|enable|disable
+Host: host-hook --host claude-code|codex|workbuddy --event EVENT
+Development: receiver | export-receipts --output PATH
+Documents: document-transfer --host codex --operation-id ID --file ABSOLUTE_PATH
+           document-permission --host codex (trusted Codex PermissionRequest Hook)
+Document transfer sends the original bytes only for a retained, authorized operation.
+
+Options:
+  --help, -h                  Show help without preparing a runtime or instance
+  --host HOST                 Active client: cursor, workbuddy, codex or claude-code
+  --reuse-auth-from HOST      Reuse a grant from an already authorized client
+  --reuse-only                Reuse authorization or report its absence without browser consent
+  --device, --headless        Use device authorization for login
+  --timeout-seconds 1..600     Total login timeout (default 600 seconds)
+  --event EVENT               Native Hook event
+  --output PATH               Exclusive receipt export path; export contains conversation text
+  --session-id ID             Current native Claude session for sharing
+  --operation-id ID           Retry an existing immutable share operation
+
+Advanced diagnostic overrides:
+  --configuration-root PATH   Verified absolute source configuration root
+  --state-dir PATH            Explicit diagnostic state override
+  --source-configuration-root PATH  Verified source root for authorization diagnostics
+
+Examples (replace HOST with the verified active client):
+  hipohipo auth-status --host HOST
+  hipohipo status --host HOST
+  hipohipo login --host HOST
+auth-status checks authorization; status reports local capture diagnostics.
+The program resolves host locations; normal login does not require a configuration root.
+Profiles of the same host share authorization and local account selection.
+Cursor uses the Claude Code host area. Each Hipo account retains its own history
+and upload queue. Use the installed hipohipo.cmd entry on Windows.
+
+Update notices (all hosts):
+  hipohipo update-notice status --host HOST
+  hipohipo update-notice disable --host HOST
+  hipohipo update-notice enable --host HOST
+Disabled notice response ignores server update notices, including cached notices.
+This preference is independent of the host and installer update preferences.

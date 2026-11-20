@@ -1,0 +1,8 @@
+{
+  "name": "hipohipo-web",
+  "version": "0.1.6",
+  "description": "Save selected preferences and final documents to your Hipo Brain.",
+  "author": {
+    "name": "Ontos AI"
+  }
+}

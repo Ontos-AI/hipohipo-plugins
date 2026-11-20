@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "hipohipo": {
+      "command": "${CURSOR_PLUGIN_ROOT}/hipohipo",
+      "args": ["mcp", "--host", "cursor"],
+      "cwd": "${CURSOR_PLUGIN_ROOT}",
+      "env": {
+        "CURSOR_CONFIG_DIR": "${env:CURSOR_CONFIG_DIR}",
+        "XDG_CONFIG_HOME": "${env:XDG_CONFIG_HOME}",
+        "VSCODE_APPDATA": "${env:VSCODE_APPDATA}",
+        "VSCODE_PORTABLE": "${env:VSCODE_PORTABLE}"
+      }
+    }
+  }
+}
